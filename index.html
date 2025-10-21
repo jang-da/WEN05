@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아이디어 16: 상호작용하는 ASCII 언덕 (라이트 모드)</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+KR:wght@400;500;600;700&family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --c-white: #FFFFFF;
+            --c-light-gray: #E4E7EC;
+            --c-orange-red: #FF4A28;
+            --c-black: #000000;
+            --f-primary: 'Noto Sans KR', sans-serif;
+            --f-code: 'Source Code Pro', monospace;
+            --f-display: 'DotGothic16', sans-serif;
+        }
+        ::selection { background: var(--c-orange-red); color: var(--c-white); }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            /* 배경을 흰색으로 변경 */
+            background-color: #ffffff;
+            font-family: var(--f-primary);
+            color: #000000;
+            padding-top: 71px; /* GNB 높이만큼 콘텐츠를 아래로 밀어냄 */
+        }
+
+        html, body {
+            /* 페이지 전체에서 가로 스크롤이 생기는 것을 방지합니다. */
+            overflow-x: hidden;
+        }
+        canvas {
+            display: block;
+            /* 캔버스 배경을 흰색으로 변경 */
+            background-color: #ffffff;
+            /* 뷰포트 전체를 채우도록 설정 */
+            width: 100%; 
+            /* 컨테이너 높이에 맞춤 */
+            height: 100%; 
+        }
+        .animation-section {
+            height: 100vh; /* 화면 전체 높이를 차지 */
+            margin-top: -71px; /* body의 padding-top을 상쇄하여 화면을 꽉 채움 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-overlay {
+            position: absolute; /* 캔버스 위에 위치하도록 설정 */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* 정확한 중앙 정렬 */
+            display: flex;
+            gap: 20px; /* 이미지 사이의 간격 */
+            z-index: 10; /* 캔버스 위에 오도록 설정 */
+            text-align: center; /* 이 요소만 중앙 정렬 */
+        }
+        .image-overlay img {
+            height: 50px; /* 이미지 높이 지정 */
+        }
+        /* Site Header */
+        .site-header {
+            position: fixed; /* 화면 상단에 고정 */
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background-color: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px); /* 배경 블러 효과 (모던한 느낌) */
+            z-index: 1000; /* 다른 요소들 위에 오도록 설정 */
+            border-bottom: 1px solid var(--c-light-gray);
+        }
+
+        .site-header .logo a {
+             font-family: var(--f-display);
+             font-size: 1.5rem;
+             font-weight: 400;
+             color: var(--c-black);
+             text-decoration: none;
+             letter-spacing: 0.1rem;
+             transition: color 0.3s ease;
+        }
+
+        .site-header .logo a:hover {
+            color: var(--c-orange-red);
+        }
+
+        .site-header nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .site-header nav a {
+            font-family: var(--f-primary);
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--c-black);
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .site-header nav a:hover,
+        .site-header nav a.active {
+            border-color: var(--c-black);
+            background-color: var(--c-black);
+            color: var(--c-white);
+        }
+
+        /* 메인 페이지에서는 로고를 active 상태처럼 보이게 할 수 있습니다. */
+        .site-header .logo a.active {
+            color: var(--c-orange-red);
+        }
+        .content-section {
+            display: flex;
+            justify-content: center;
+            align-items: center; /* 자식 요소들을 수직 중앙 정렬합니다. */
+            gap: 40px; /* 좌우 패널 사이 간격 */
+            padding: 10vh 5vw; /* 상하, 좌우 여백 추가 */
+        }
+        .about-container {
+            display: flex;
+            align-items: flex-start; /* 상단 정렬 */
+            gap: 40px;
+        }
+        .left-panel {
+            display: flex;
+            align-items: flex-end; /* Decoding 텍스트와 이미지 박스를 하단 정렬 */
+            gap: 20px;
+        }
+        .image-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .right-text-panel {
+            width: 250px; /* 오른쪽 패널 너비 설정 */
+            /* padding-top: 2.5em; /* '세상을 읽고' 텍스트와 높이를 맞추기 위한 여백 */ */
+        }
+        .right-text-panel p {
+            margin: 0 0 1em 0; /* 단락 아래 여백 추가 */
+            text-align: left; /* 패널 내부 텍스트는 왼쪽 정렬 */
+        }
+        .image-container p {
+            margin: 0;
+        }
+        .left-panel h2 {
+            font-size: 2em;
+            writing-mode: vertical-rl; /* 텍스트를 세로로 표시 */
+            transform: rotate(180deg); /* 글자를 바로 세움 */
+            margin-bottom: 0; /* Remove margin-bottom to align with flex-end */
+        }
+        .image-box {
+            width: 400px; /* 너비 조정 */
+            height: 690px;
+            border: 1px solid #000000;
+            box-sizing: border-box; /* 테두리를 크기에 포함 */
+        }
+
+        /* Info Sections (from info.html) */
+        .info-section {
+            padding: 80px 0;
+            border-bottom: 1px solid var(--c-light-gray);
+        }
+
+        .info-section:last-of-type {
+            border-bottom: none;
+        }
+
+        .info-section h2 {
+            font-family: var(--f-display);
+            font-size: 2.5rem;
+            color: var(--c-dark-cocoa);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .info-section .content-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(300px, 1fr));
+            gap: 40px;
+            justify-content: center; /* 그리드 아이템들을 중앙 정렬합니다. */
+            justify-items: center; /* 각 그리드 셀 안의 아이템을 중앙 정렬합니다. */
+            margin-top: 40px;
+        }
+
+        .info-item {
+            /* 각 항목이 분리되어 보이도록 약간의 스타일 추가 */
+            padding: 20px;
+            text-align: center;
+            
+        }
+
+        .info-item h3 {
+            font-family: var(--f-primary);
+            font-size: 1.3rem; /* 제목 폰트 크기 조정 */
+            color: var(--c-black);
+            margin-bottom: 15px;
+        }
+
+        .info-item p {
+            font-size: 1rem;
+            color: var(--c-text-secondary);
+            line-height: 1.7;
+        }
+
+        /* 명단 스타일 */
+        .member-list p {
+            font-size: 1rem;
+            text-align: center; /* 명단 텍스트를 중앙 정렬합니다. */
+            line-height: 1.8;
+        }
+
+        /* Footer (from info.html) */
+        footer {
+            background: var(--c-black);
+            color: var(--c-white);
+            padding: 50px 0;
+            border-top: 1px solid var(--c-black);
+        }
+
+        footer .footer-content {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        footer .footer-section h3 {
+            font-family: var(--f-code);
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            font-weight: 400;
+        }
+
+        footer .footer-section p {
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive for Info Sections and Footer */
+        @media (max-width: 768px) {
+            .info-section { padding: 60px 0; }
+            .info-section h2 { font-size: 2rem; }
+            .info-section .content-grid { grid-template-columns: 1fr; }
+            .info-item { padding: 25px; }
+            .info-item h3 { font-size: 1.3rem; }
+            footer .footer-content { flex-direction: column; gap: 30px; text-align: center; }
+        }
+        @media (max-width: 480px) {
+            .info-section h2 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Site Header -->
+    <header class="site-header">
+        <div class="logo">
+            <a href="index.html" class="active">CODE.</a>
+        </div>
+        <nav>
+            <a href="projects.html">PROJECTS</a>
+            <a href="profile.html">ARTISTS</a>
+            <a href="index.html#about">ABOUT</a>
+        </nav>
+    </header>
+
+    <div class="animation-section">
+        <div class="image-overlay">
+            <img src="c.png" alt="c"><img src="o.png" alt="o"><img src="d.png" alt="d"><img src="e.png" alt="e">
+        </div>
+        <canvas id="canvas1"></canvas>
+    </div>
+    <div id="about" class="container">
+        <div class="content-section">
+            <div class="about-container">
+                <div class="left-panel">
+                    <h2>Decoding</h2>
+                    <div class="image-container">
+                        <p>세상을 읽고</p>
+                        <div class="image-box"></div>
+                        <p>시각으로 답하다</p>
+                    </div>
+                    <h2>Encoding</h2>
+                </div>
+                <div class="right-text-panel">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INFO Content (from info.html) -->
+    <div id="info-details" class="container">
+        <section class="info-section">
+            <h2>INFO</h2>
+            <div class="content-grid">
+                <div class="info-item" style="grid-column: 1 / -1;">
+                    <h3>졸업전시위원</h3>
+                    <div class="member-list">
+                        <p>홍길동</p>
+                        <p>김철수</p>
+                        <p>이영희</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <h3>웹</h3>
+                    <div class="member-list">
+                        <p>장영웅</p>
+                        <p>박민준</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <h3>영상</h3>
+                    <div class="member-list">
+                        <p>최지혜</p>
+                        <p>윤서아</p>
+                    </div>
+                </div>
+                <div style="grid-column: 1 / -1;"></div> <!-- Force new row -->
+                <div class="info-item">
+                    <h3>소형배너</h3>
+                    <div class="member-list">
+                        <p>정수진</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <h3>대형배너</h3>
+                    <div class="member-list">
+                        <p>윤서준</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>decoding</h3>
+                <p>세상의 본질을 꿰뚫는 시선</p>
+            </div>
+            <div class="footer-section" style="text-align: right;">
+                <h3>encoding</h3>
+                <p>시각의 언어로 해결책을 설계</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- 공통 설정 ---
+        // 문자를 밝기/밀도에 따라 6단계로 재정의
+        const charLevels = [
+            [' ', '.', '`'],      
+            [',', "'", '"'],
+            [':', '~', '-'],
+            ['*', '!', '|'],
+            ['=', '$', '#'],
+            ['@', '%', '&']       
+        ];
+
+        /**
+         * 지정된 캔버스에 웨이브 애니메이션을 생성하는 함수
+         * @param {string} canvasId - 캔버스의 ID
+         * @param {object} options - 애니메이션 커스텀 옵션
+         */
+        function createWaveAnimation(canvasId, options) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            function resizeCanvas() {
+                const dpr = window.devicePixelRatio || 1;
+                // 부모 요소(.right-panel)의 크기를 기준으로 캔버스 크기 설정
+                canvas.width = canvas.parentElement.offsetWidth * dpr;
+                canvas.height = canvas.parentElement.offsetHeight * dpr;
+                ctx.scale(dpr, dpr);
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            // 옵션 기본값 설정
+            const config = {
+                numberOfColumns: 240,
+                fontSize: 14,
+                columnSpacing: 8,
+                verticalSpacing: 14 * 0.7,
+                easing: 0.08, 
+                // 기본 문자 색상을 검은색으로 변경
+                baseColor: '#000000',
+                mouseInfluenceRadius: 150, 
+                maxMouseEffectHeight: 200,   
+                ...options
+            };
+            
+            let columns = [];
+            for (let i = 0; i < config.numberOfColumns; i++) {
+                columns.push({ currentHeight: 0, targetHeight: 0 });
+            }
+
+            let frameCount = 0;
+            let mouse = { x: null, y: null };
+
+            // 마우스 이벤트 리스너 추가
+            canvas.addEventListener('mousemove', e => {
+                const rect = canvas.getBoundingClientRect();
+                mouse.x = e.clientX - rect.left;
+                mouse.y = e.clientY - rect.top;
+            });
+            canvas.addEventListener('mouseout', () => {
+                mouse.x = null;
+                mouse.y = null;
+            });
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                const totalWidth = config.columnSpacing * (config.numberOfColumns - 1);
+                const startX = (canvas.clientWidth - totalWidth) / 2;
+
+                ctx.font = `bold ${config.fontSize}px monospace`;
+                ctx.textAlign = 'center';
+
+                config.updateLogic(columns, mouse, frameCount, config);
+
+                for (let i = 0; i < config.numberOfColumns; i++) {
+                    const col = columns[i];
+                    
+                    col.currentHeight += (col.targetHeight - col.currentHeight) * config.easing;
+
+                    const columnX = startX + i * config.columnSpacing;
+                    const charCountInStack = Math.floor(col.currentHeight / config.verticalSpacing);
+
+                    config.drawLogic(ctx, i, columnX, charCountInStack, col.currentHeight, config);
+                }
+            }
+
+            function animate() {
+                draw();
+                frameCount++;
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+    </script>
+</body>
+</html>
