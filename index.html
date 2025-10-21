@@ -193,19 +193,24 @@
         }
 
         .info-section .content-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(300px, 1fr));
+            display: flex; /* Flexbox 레이아웃으로 변경 */
+            flex-direction: column; /* 항목들을 세로로 나열 */
             gap: 40px;
-            justify-content: center; /* 그리드 아이템들을 중앙 정렬합니다. */
-            justify-items: center; /* 각 그리드 셀 안의 아이템을 중앙 정렬합니다. */
+            max-width: 800px; /* 최대 너비 설정 */
+            margin: 0 auto; /* 중앙 정렬 */
             margin-top: 40px;
         }
 
         .info-item {
-            /* 각 항목이 분리되어 보이도록 약간의 스타일 추가 */
-            padding: 20px;
-            text-align: center;
-            
+            display: flex; /* Flexbox를 사용하여 제목과 명단을 정렬 */
+            justify-content: space-between; /* 양쪽 끝으로 정렬 */
+            align-items: flex-start; /* 상단 정렬 */
+            padding: 20px 0; /* 상하 패딩만 적용 */
+            border-bottom: 1px solid var(--c-light-gray); /* 항목 구분선 */
+        }
+
+        .info-item:last-child {
+            border-bottom: none; /* 마지막 항목의 구분선 제거 */
         }
 
         .info-item h3 {
@@ -223,9 +228,14 @@
 
         /* 명단 스타일 */
         .member-list p {
-            font-size: 1rem;
-            text-align: center; /* 명단 텍스트를 중앙 정렬합니다. */
+            font-size: 1rem; /* 폰트 크기 통일 */
+            text-align: right; /* 명단 텍스트를 오른쪽 정렬합니다. */
             line-height: 1.8;
+        }
+
+        .member-list {
+            display: flex;
+            flex-direction: column;
         }
 
         /* Footer (from info.html) */
@@ -260,7 +270,9 @@
         @media (max-width: 768px) {
             .info-section { padding: 60px 0; }
             .info-section h2 { font-size: 2rem; }
-            .info-section .content-grid { grid-template-columns: 1fr; }
+            .info-section .content-grid {
+                padding: 0 20px; /* 모바일에서 좌우 여백 추가 */
+            }
             .info-item { padding: 25px; }
             .info-item h3 { font-size: 1.3rem; }
             footer .footer-content { flex-direction: column; gap: 30px; text-align: center; }
@@ -313,7 +325,7 @@
         <section class="info-section">
             <h2>INFO</h2>
             <div class="content-grid">
-                <div class="info-item" style="grid-column: 1 / -1;">
+                <div class="info-item">
                     <h3>졸업전시위원</h3>
                     <div class="member-list">
                         <p>홍길동</p>
@@ -324,28 +336,25 @@
                 <div class="info-item">
                     <h3>웹</h3>
                     <div class="member-list">
-                        <p>장영웅</p>
-                        <p>박민준</p>
+                        <p>장영웅, 박민준</p>
                     </div>
                 </div>
                 <div class="info-item">
                     <h3>영상</h3>
                     <div class="member-list">
-                        <p>최지혜</p>
-                        <p>윤서아</p>
+                        <p>최지혜, 윤서아</p>
                     </div>
                 </div>
-                <div style="grid-column: 1 / -1;"></div> <!-- Force new row -->
                 <div class="info-item">
                     <h3>소형배너</h3>
                     <div class="member-list">
-                        <p>정수진</p>
+                        <p>정수진, 윤서준</p>
                     </div>
                 </div>
                 <div class="info-item">
                     <h3>대형배너</h3>
                     <div class="member-list">
-                        <p>윤서준</p>
+                        <p>정수진, 윤서준</p>
                     </div>
                 </div>
             </div>
