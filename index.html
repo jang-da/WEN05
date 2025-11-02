@@ -3,14 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>아이디어 16: 상호작용하는 ASCII 언덕 (라이트 모드)</title>
-    <!-- Fonts -->
+    <title>GSAP 상하 분리 인트로 (가로 텍스트 이동)</title>
+    <!-- Tailwind CSS CDN --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font (Inter) --><link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;700&display=swap" rel="stylesheet">
+    <!-- GSAP CDN --><script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <!-- Fonts -->
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+KR:wght@400;500;600;700&family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
 
     <style>
+        /* Tailwind CSS를 보완하기 위한 기본 스타일 */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* 로딩 바가 왼쪽에서 오른쪽으로 채워지도록 설정 */
+        #loadingBar {
+            transform-origin: left;
+            transform: scaleX(0);
+        }
         :root {
             --c-white: #FFFFFF;
             --c-light-gray: #E4E7EC;
@@ -28,13 +41,14 @@
             box-sizing: border-box;
         }
 
-        body {
+
+
+        #main-content body {
             margin: 0;
             /* 배경을 흰색으로 변경 */
             background-color: #ffffff;
             font-family: var(--f-primary);
             color: #000000;
-            padding-top: 71px; /* GNB 높이만큼 콘텐츠를 아래로 밀어냄 */
         }
 
         html, body {
@@ -124,6 +138,11 @@
             color: var(--c-white);
         }
 
+        .site-header nav img {
+            height: 20px; /* 네비게이션 이미지 높이 설정 */
+            vertical-align: middle; /* 이미지가 링크 중앙에 오도록 정렬 */
+        }
+
         /* 메인 페이지에서는 로고를 active 상태처럼 보이게 할 수 있습니다. */
         .site-header .logo a.active {
             color: var(--c-orange-red);
@@ -201,6 +220,13 @@
             margin-top: 40px;
         }
 
+        /* INFO 항목들을 가로로 나열하기 위한 행 컨테이너 */
+        .info-row {
+            display: flex;
+            justify-content: space-between; /* 항목들을 균등하게 분배 */
+            gap: 20px; /* 항목 사이의 최소 간격 */
+        }
+
         .info-item {
             display: flex; /* Flexbox를 사용하여 제목과 명단을 정렬 */
             justify-content: space-between; /* 양쪽 끝으로 정렬 */
@@ -236,6 +262,11 @@
         .member-list {
             display: flex;
             flex-direction: column;
+        }
+
+        /* 졸업전시위원 명단 왼쪽 정렬 */
+        .member-list.align-left p {
+            text-align: left;
         }
 
         /* Footer (from info.html) */
@@ -283,97 +314,266 @@
     </style>
 </head>
 <body>
-    <!-- Site Header -->
-    <header class="site-header">
-        <div class="logo">
-            <a href="index.html" class="active">CODE.</a>
+    <!-- Intro Animation -->
+    <div id="intro-animation" class="relative w-full h-screen overflow-hidden flex items-center justify-center">
+        
+        <!-- 
+          슬라이딩 패널
+          - absolute: 부모(메인 컨테이너)를 기준으로 위치
+        --><!-- 상단 패널 (Z-index: 20) --><!-- 
+          - 텍스트를 다시 포함하고, flex, overflow-hidden 등 클래스 복원
+        --><div id="panelTop" class="absolute top-0 left-0 w-full h-1/2 bg-teal-500 z-20 flex items-end justify-center overflow-hidden pb-8">
+            <!-- 
+              애니메이션 텍스트
+              - 상단 패널 내부로 다시 이동
+            -->
+            <!-- 
+              폰트 크기 수정: text-4xl md:text-7xl -> text-2xl (24px)
+            -->
+            <div class="flex items-center space-x-4 text-2xl font-bold">
+                <span id="codeText" class="text-white">CODE</span>
+                <span id="slashText" class="text-gray-200">/</span>
+                <span id="projectText" class="text-white">PROJECT</span>
+            </div>
         </div>
-        <nav>
-            <a href="projects.html">PROJECTS</a>
-            <a href="profile.html">ARTISTS</a>
-            <a href="index.html#about">ABOUT</a>
-        </nav>
-    </header>
+        
+        <!-- 하단 패널 (Z-index: 20) -->
+        <div id="panelBottom" class="absolute bottom-0 left-0 w-full h-1/2 bg-teal-500 z-20 flex items-end justify-center pb-4">
+            <!-- 하단 퍼센트 텍스트 -->
+            <div id="loadingPercentage" class="text-sm font-mono text-white/50">(0%)</div>
+        </div>
 
-    <div class="animation-section">
-        <div class="image-overlay">
-            <img src="c.png" alt="c"><img src="o.png" alt="o"><img src="d.png" alt="d"><img src="e.png" alt="e">
-        </div>
-        <canvas id="canvas1"></canvas>
-    </div>
-    <div id="about" class="container">
-        <div class="content-section">
-            <div class="about-container">
-                <div class="left-panel">
-                    <h2>Decoding</h2>
-                    <div class="image-container">
-                        <p>세상을 읽고</p>
-                        <div class="image-box"></div>
-                        <p>시각으로 답하다</p>
-                    </div>
-                    <h2>Encoding</h2>
-                </div>
-                <div class="right-text-panel">
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et</p>
-                </div>
-            </div>
+        <!-- 로딩 바 컨테이너 (Z-index: 30) -->
+        <div id="loadingContainer" class="absolute top-1/2 left-0 w-full z-30">
+            <!-- 로딩 바 트랙 -->
+            <div class="h-[1px] w-full bg-black/20"></div>
+            <!-- 실제 움직이는 로딩 바 -->
+            <div id="loadingBar" class="absolute top-0 left-0 h-[1px] w-full bg-white"></div>
         </div>
     </div>
 
-    <!-- INFO Content (from info.html) -->
-    <div id="info-details" class="container">
-        <section class="info-section">
-            <h2>INFO</h2>
-            <div class="content-grid">
-                <div class="info-item">
-                    <h3>졸업전시위원</h3>
-                    <div class="member-list">
-                        <p>홍길동</p>
-                        <p>김철수</p>
-                        <p>이영희</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <h3>웹</h3>
-                    <div class="member-list">
-                        <p>장영웅, 박민준</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <h3>영상</h3>
-                    <div class="member-list">
-                        <p>최지혜, 윤서아</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <h3>소형배너</h3>
-                    <div class="member-list">
-                        <p>정수진, 윤서준</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <h3>대형배너</h3>
-                    <div class="member-list">
-                        <p>정수진, 윤서준</p>
-                    </div>
-                </div>
+    <!-- Main Content (initially hidden) -->
+    <div id="main-content" style="visibility: hidden; opacity: 0;">
+        <!-- Site Header -->
+        <header class="site-header">
+            <div class="logo">
+                <a href="index.html" class="active">CODE.</a>
             </div>
-        </section>
-    </div>
-    <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>decoding</h3>
-                <p>세상의 본질을 꿰뚫는 시선</p>
+            <nav>
+                <a href="projects.html"><img src="project.png" alt="Projects"></a>
+                <a href="profile.html"><img src="artist.png" alt="Artists"></a>
+                <a href="index.html#about"><img src="about.png" alt="About"></a>
+            </nav>
+        </header>
+
+        <div class="animation-section">
+            <div class="image-overlay">
+                <img src="c.png" alt="c"><img src="o.png" alt="o"><img src="d.png" alt="d"><img src="e.png" alt="e">
             </div>
-            <div class="footer-section" style="text-align: right;">
-                <h3>encoding</h3>
-                <p>시각의 언어로 해결책을 설계</p>
+            <canvas id="canvas1"></canvas>
+        </div>
+        <div id="about" class="container">
+            <div class="content-section">
+                <div class="about-container">
+                    <div class="left-panel">
+                        <h2>Decoding</h2>
+                        <div class="image-container">
+                            <p>세상을 읽고</p>
+                            <div class="image-box"></div>
+                            <p>시각으로 답하다</p>
+                        </div>
+                        <h2>Encoding</h2>
+                    </div>
+                    <div class="right-text-panel">
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et</p>
+                    </div>
+                </div>
             </div>
         </div>
-    </footer>
+
+        <!-- INFO Content (from info.html) -->
+        <div id="info-details" class="container">
+            <section class="info-section">
+                <h2>INFO</h2>
+                <div class="content-grid">
+                    <div class="info-item">
+                        <div>
+                            <h3>졸업전시위원</h3>
+                            <div class="member-list align-left">
+                                <p>홍길동</p>
+                                <p>김철수</p>
+                                <p>이영희</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 4개 항목을 한 줄로 묶는 행 컨테이너 -->
+                    <div class="info-row">
+                        <div class="info-item">
+                            <div>
+                                <h3>웹</h3>
+                                <div class="member-list align-left">
+                                    <p>장영웅</p>
+                                    <p>박민준</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div>
+                                <h3>영상</h3>
+                                <div class="member-list align-left">
+                                    <p>최지혜</p>
+                                    <p>윤서아</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div>
+                                <h3>소형배너</h3>
+                                <div class="member-list align-left">
+                                    <p>정수진</p>
+                                    <p>윤서준</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div>
+                                <h3>대형배너</h3>
+                                <div class="member-list align-left">
+                                    <p>정수진</p>
+                                    <p>윤서준</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <footer>
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>decoding</h3>
+                    <p>세상의 본질을 꿰뚫는 시선</p>
+                </div>
+                <div class="footer-section" style="text-align: right;">
+                    <h3>encoding</h3>
+                    <p>시각의 언어로 해결책을 설계</p>
+                </div>
+            </div>
+        </footer>
+    </div>
 
     <script>
+        // DOM 콘텐츠가 모두 로드되면 스크립트 실행
+        document.addEventListener("DOMContentLoaded", () => {
+            
+            // 1. 요소들의 초기 상태 설정
+            gsap.set("#panelTop", { yPercent: 0 });
+            gsap.set("#panelBottom", { yPercent: 0 });
+
+            // 상단 패널 내부 텍스트들의 초기 상태 설정 (투명하고 중앙에 위치)
+            gsap.set(["#codeText", "#slashText", "#projectText"], { opacity: 0 }); // 모든 텍스트 초기 투명
+            gsap.set(["#loadingContainer", "#loadingPercentage"], { opacity: 0 }); // 로딩 요소들 초기 투명
+            
+            // 텍스트 이동 거리를 동적으로 계산하기 위해 요소 참조
+            const panelTop = document.getElementById('panelTop');
+            const codeText = document.getElementById('codeText');
+            const projectText = document.getElementById('projectText');
+
+            // 2. GSAP 타임라인 생성
+            const tl = gsap.timeline({
+                onComplete: () => { // 타임라인의 모든 애니메이션이 완료된 후 실행됩니다.
+                    // 인트로 애니메이션 컨테이너를 완전히 숨깁니다.
+                    gsap.set("#intro-animation", { display: "none" });
+                    // 메인 콘텐츠의 스크롤을 다시 활성화합니다.
+                    document.body.style.overflowY = 'auto';
+                }
+            });
+
+            
+            // 3. 타임라인에 애니메이션 추가
+            
+            // (1) 텍스트가 페이드인 되면서 중앙에 나타나는 애니메이션
+            tl.to(["#codeText", "#slashText", "#projectText"], {
+                duration: 0.8,
+                opacity: 1,
+                ease: "power2.out"
+            });
+
+            // (1.5) 텍스트 페이드인과 동시에 로딩 UI 나타나기
+            tl.to(["#loadingContainer", "#loadingPercentage"], {
+                opacity: 1,
+                duration: 0.8
+            }, "<");
+
+            // (2) CODE와 ARTIST 텍스트가 좌우 가장자리로 이동하며 사라지는 반응형 애니메이션
+            //     "-=0.4" : 이전 텍스트 페이드인 애니메이션이 끝나기 0.4초 전에 시작
+            tl.to(codeText, {
+                duration: 1,
+                x: () => {
+                    const panelWidth = panelTop.offsetWidth;
+                    const textWidth = codeText.offsetWidth;
+                    const padding = 64; // 왼쪽에 둘 여백
+                    // (패널 너비의 절반) - (텍스트 너비의 절반) - 여백
+                    return -(panelWidth / 2 - textWidth / 2 - padding);
+                },
+                ease: "power3.inOut"
+            }, "-=0.4"); 
+
+            tl.to(projectText, {
+                duration: 1,
+                x: () => {
+                    const panelWidth = panelTop.offsetWidth;
+                    const textWidth = projectText.offsetWidth;
+                    const padding = 64; // 오른쪽에 둘 여백
+                    // (패널 너비의 절반) - (텍스트 너비의 절반) - 여백
+                    return panelWidth / 2 - textWidth / 2 - padding;
+                },
+                ease: "power3.inOut"
+            }, "<"); // 이전 CODE 애니메이션과 동시에 시작
+            
+            // (3) 로딩 애니메이션 (숫자와 바)
+            const counter = { value: 0 };
+            tl.to(counter, {
+                value: 100,
+                duration: 1,
+                ease: 'power1.inOut',
+                onUpdate: () => {
+                    document.getElementById('loadingPercentage').textContent = `(${Math.round(counter.value)}%)`;
+                }
+            }, "<"); // 텍스트 이동과 동시에 시작
+
+            tl.to("#loadingBar", {
+                scaleX: 1,
+                duration: 1,
+                ease: "power1.inOut"
+            }, "<"); // 카운터와 동시에 시작
+
+            // (4) 로딩 완료 후, 패널 열기 애니메이션
+            //     "+=0.3" : 로딩이 끝난 후 0.3초 뒤에 시작
+            const lastAnimationStartTime = "+=0.3";
+
+            tl.to(["#panelTop", "#panelBottom"], {
+                duration: 1.2,
+                yPercent: (i) => (i === 0 ? -100 : 100), // panelTop은 위로, panelBottom은 아래로
+                ease: "power3.inOut"
+            }, lastAnimationStartTime);
+            
+            // (5) 로딩 UI (바, 퍼센트 텍스트) 사라지는 애니메이션
+            //     yPercent 대신 autoAlpha (opacity + visibility)를 사용해 사라지게 함
+            tl.to(["#loadingContainer", "#loadingPercentage"], {
+                duration: 0.8,
+                autoAlpha: 0, // opacity: 0, visibility: hidden
+                ease: "power2.inOut"
+            }, lastAnimationStartTime); // 패널이 열리는 것과 동시에 시작
+//여기여기여기여기여기여기여기여기 여기 딜레이 조절 자연스럽게 해야함
+            // (6) 메인 콘텐츠가 부드럽게 나타나는 애니메이션
+            //     패널이 열리는 것과 동시에 시작하여 흰 화면이 보이지 않게 함
+            tl.to("#main-content", {
+                duration: 0,
+                autoAlpha: 1, // visibility: visible, opacity: 1
+            }, lastAnimationStartTime);
+        });
+
         // --- 공통 설정 ---
         // 문자를 밝기/밀도에 따라 6단계로 재정의
         const charLevels = [
@@ -467,6 +667,7 @@
             }
             animate();
         }
+
     </script>
 </body>
 </html>
