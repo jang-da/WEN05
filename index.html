@@ -13,6 +13,7 @@
     <!-- Fonts -->
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+KR:wght@400;500;600;700&family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    
 
     <style>
         /* Tailwind CSS를 보완하기 위한 기본 스타일 */
@@ -155,14 +156,13 @@
             padding: 10vh 5vw; /* 상하, 좌우 여백 추가 */
         }
         .about-container {
-            display: flex;
-            align-items: flex-start; /* 상단 정렬 */
-            gap: 40px;
+            display: flex; /* Flexbox 사용 */
+            align-items: flex-start; /* 자식 요소들을 상단에 정렬 */
+            gap: 40px; /* 자식 요소들 사이의 간격 */
         }
         .left-panel {
+            /* 이전에 left-panel에 있던 스타일은 about-container로 이동하거나 삭제되었습니다. */
             display: flex;
-            align-items: flex-end; /* Decoding 텍스트와 이미지 박스를 하단 정렬 */
-            gap: 20px;
         }
         .image-container {
             display: flex;
@@ -180,17 +180,35 @@
         .image-container p {
             margin: 0;
         }
+        .about-container > h2 {
+            font-size: 2em;
+            margin-top: 20px; /* Decoding 텍스트를 아래로 내리기 위한 상단 여백 */
+        }
         .left-panel h2 {
             font-size: 2em;
-            writing-mode: vertical-rl; /* 텍스트를 세로로 표시 */
-            transform: rotate(180deg); /* 글자를 바로 세움 */
-            margin-bottom: 0; /* Remove margin-bottom to align with flex-end */
+            /* 세로 쓰기 관련 스타일을 제거하여 텍스트를 가로로 표시합니다. */
         }
         .image-box {
             width: 400px; /* 너비 조정 */
             height: 690px;
             border: 1px solid #000000;
             box-sizing: border-box; /* 테두리를 크기에 포함 */
+        }
+        .image-box-wrapper {
+            position: relative; /* 자식 absolute 요소의 기준점 */
+        }
+        .image-box-wrapper > p {
+            position: absolute; /* 부모 요소를 기준으로 위치 설정 */
+            bottom: 0; /* 아래쪽 가장자리에 붙임 */
+            right: -20px; /* 오른쪽으로 이동 */
+            transform: translateX(100%); /* 텍스트 너비만큼 오른쪽으로 더 이동하여 가장자리에 맞춤 */
+            white-space: nowrap; /* 텍스트가 줄바꿈되지 않도록 함 */
+        }
+        .image-box-wrapper > h2 {
+            position: absolute;
+            bottom: -2.5em; /* 이미지 박스 아래로 이동 */
+            right: 0; /* 오른쪽 정렬 */
+            font-size: 2em;
         }
 
         /* Info Sections (from info.html) */
@@ -360,7 +378,7 @@
                 <a href="index.html" class="active">CODE.</a>
             </div>
             <nav>
-                <a href="projects.html"><img src="project.png" alt="Projects"></a>
+                <a href="project.html"><img src="project.png" alt="Projects"></a>
                 <a href="profile.html"><img src="artist.png" alt="Artists"></a>
                 <a href="index.html#about"><img src="about.png" alt="About"></a>
             </nav>
@@ -375,14 +393,16 @@
         <div id="about" class="container">
             <div class="content-section">
                 <div class="about-container">
+                    <h2>Decoding</h2>
                     <div class="left-panel">
-                        <h2>Decoding</h2>
                         <div class="image-container">
                             <p>세상을 읽고</p>
-                            <div class="image-box"></div>
-                            <p>시각으로 답하다</p>
+                            <div class="image-box-wrapper">
+                                <div class="image-box"></div>
+                                <p>시각으로 답하다</p>
+                                <h2>Encoding</h2>
+                            </div>
                         </div>
-                        <h2>Encoding</h2>
                     </div>
                     <div class="right-text-panel">
                         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et</p>
