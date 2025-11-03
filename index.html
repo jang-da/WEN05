@@ -111,6 +111,13 @@
             color: var(--c-white);
         }
 
+        /* Container for content sections */
+        .container {
+            max-width: 2211px; /* 이미지 너비와 동일하게 설정 */
+            margin: 0 auto; /* 컨테이너 중앙 정렬 */
+            padding: 0 40px; /* 좌우 여백 */
+        }
+
         .site-header nav img {
             height: 20px; /* 네비게이션 이미지 높이 설정 */
             vertical-align: middle; /* 이미지가 링크 중앙에 오도록 정렬 */
@@ -124,16 +131,14 @@
         .content-section {
             align-items: center; /* 자식 요소들을 수직 중앙 정렬합니다. */
             gap: 40px; /* 좌우 패널 사이 간격 */
-            padding: 10vh 5vw; /* 상하, 좌우 여백 추가 */
+            padding: 120px 40px; /* 상하, 좌우 여백 수정 */
             display: flex;
+            justify-content: center; /* Flexbox 중앙 정렬 */
         }
         .about-container {
             display: flex; /* Flexbox 사용 */
             align-items: flex-start; /* 자식 요소들을 상단에 정렬 */
             gap: 80px; /* 자식 요소들 사이의 간격 */
-            justify-content: center; /* Flexbox 중앙 정렬 */
-            width: 1990px;
-            max-width: 1280px; /* 콘텐츠 최대 너비 제한 */
         }
         
         .image-container {
@@ -205,8 +210,6 @@
             display: flex; /* Flexbox 레이아웃으로 변경 */
             flex-direction: column; /* 항목들을 세로로 나열 */
             gap: 20px;
-            max-width: 800px; /* 최대 너비 설정 */
-            margin: 0 auto; /* 중앙 정렬 */
             margin-top: 40px;
         }
 
@@ -365,6 +368,11 @@
                 <a href="index.html#about"><img src="about.png" alt="About"></a>
             </nav>
         </header>
+
+        <!-- Main Image Section -->
+        <div class="main-image-container">
+            <img src="mainimage2.png" alt="CODE. Main Visual" style="width: 100%; height: auto; display: block;">
+        </div>
 
 
         <div id="about" class="container">
