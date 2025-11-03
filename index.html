@@ -314,6 +314,19 @@
         @media (max-width: 480px) {
             .info-section h2 { font-size: 1.8rem; }
         }
+
+        /* Intro Animation Responsive */
+        @media (max-width: 768px) {
+            #intro-text-container {
+                font-size: 1.5rem; /* 24px */
+                gap: 0.5rem; /* space-x-2 */
+            }
+        }
+        @media (max-width: 480px) {
+            #intro-text-container {
+                font-size: 1.25rem; /* 20px */
+            }
+        }
     </style>
 </head>
 <body>
@@ -333,7 +346,7 @@
             <!-- 
               폰트 크기 수정: text-4xl md:text-7xl -> text-2xl (24px)
             -->
-            <div class="flex items-center space-x-4 text-2xl font-bold">
+            <div id="intro-text-container" class="flex items-center space-x-4 text-2xl font-bold">
                 <span id="codeText" class="text-white">CODE</span>
                 <span id="slashText" class="text-gray-200">/</span>
                 <span id="projectText" class="text-white">PROJECT</span>
@@ -517,7 +530,8 @@
                 x: () => {
                     const panelWidth = panelTop.offsetWidth;
                     const textWidth = codeText.offsetWidth;
-                    const padding = 64; // 왼쪽에 둘 여백
+                    // 화면 너비에 따라 반응형으로 여백 조절
+                    const padding = window.innerWidth > 768 ? 64 : 24;
                     // (패널 너비의 절반) - (텍스트 너비의 절반) - 여백
                     return -(panelWidth / 2 - textWidth / 2 - padding);
                 },
@@ -529,7 +543,8 @@
                 x: () => {
                     const panelWidth = panelTop.offsetWidth;
                     const textWidth = projectText.offsetWidth;
-                    const padding = 64; // 오른쪽에 둘 여백
+                    // 화면 너비에 따라 반응형으로 여백 조절
+                    const padding = window.innerWidth > 768 ? 64 : 24;
                     // (패널 너비의 절반) - (텍스트 너비의 절반) - 여백
                     return panelWidth / 2 - textWidth / 2 - padding;
                 },
