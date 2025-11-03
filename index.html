@@ -13,7 +13,6 @@
     <!-- Fonts -->
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+KR:wght@400;500;600;700&family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
-    
 
     <style>
         /* Tailwind CSS를 보완하기 위한 기본 스타일 */
@@ -56,36 +55,9 @@
             /* 페이지 전체에서 가로 스크롤이 생기는 것을 방지합니다. */
             overflow-x: hidden;
         }
-        canvas {
-            display: block;
-            /* 캔버스 배경을 흰색으로 변경 */
-            background-color: #ffffff;
-            /* 뷰포트 전체를 채우도록 설정 */
-            width: 100%; 
-            /* 컨테이너 높이에 맞춤 */
-            height: 100%; 
-        }
-        .animation-section {
-            height: 100vh; /* 화면 전체 높이를 차지 */
-            margin-top: -71px; /* body의 padding-top을 상쇄하여 화면을 꽉 채움 */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        /* 와이드 컨텐츠를 위한 스타일 */
 
-        .image-overlay {
-            position: absolute; /* 캔버스 위에 위치하도록 설정 */
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%); /* 정확한 중앙 정렬 */
-            display: flex;
-            gap: 20px; /* 이미지 사이의 간격 */
-            z-index: 10; /* 캔버스 위에 오도록 설정 */
-            text-align: center; /* 이 요소만 중앙 정렬 */
-        }
-        .image-overlay img {
-            height: 50px; /* 이미지 높이 지정 */
-        }
+
         /* Site Header */
         .site-header {
             position: fixed; /* 화면 상단에 고정 */
@@ -148,30 +120,30 @@
         .site-header .logo a.active {
             color: var(--c-orange-red);
         }
+
         .content-section {
-            display: flex;
-            justify-content: center;
             align-items: center; /* 자식 요소들을 수직 중앙 정렬합니다. */
             gap: 40px; /* 좌우 패널 사이 간격 */
             padding: 10vh 5vw; /* 상하, 좌우 여백 추가 */
+            display: flex;
         }
         .about-container {
             display: flex; /* Flexbox 사용 */
             align-items: flex-start; /* 자식 요소들을 상단에 정렬 */
-            gap: 40px; /* 자식 요소들 사이의 간격 */
+            gap: 80px; /* 자식 요소들 사이의 간격 */
+            justify-content: center; /* Flexbox 중앙 정렬 */
+            width: 1990px;
+            max-width: 1280px; /* 콘텐츠 최대 너비 제한 */
         }
-        .left-panel {
-            /* 이전에 left-panel에 있던 스타일은 about-container로 이동하거나 삭제되었습니다. */
-            display: flex;
-        }
+        
         .image-container {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
         .right-text-panel {
-            width: 250px; /* 오른쪽 패널 너비 설정 */
-            /* padding-top: 2.5em; /* '세상을 읽고' 텍스트와 높이를 맞추기 위한 여백 */ */
+            width: 300px; /* 오른쪽 패널 너비 설정 */
+            padding-top: 2.5em; /* '세상을 읽고' 텍스트와 높이를 맞추기 위한 여백 */
         }
         .right-text-panel p {
             margin: 0 0 1em 0; /* 단락 아래 여백 추가 */
@@ -232,7 +204,7 @@
         .info-section .content-grid {
             display: flex; /* Flexbox 레이아웃으로 변경 */
             flex-direction: column; /* 항목들을 세로로 나열 */
-            gap: 40px;
+            gap: 20px;
             max-width: 800px; /* 최대 너비 설정 */
             margin: 0 auto; /* 중앙 정렬 */
             margin-top: 40px;
@@ -242,7 +214,7 @@
         .info-row {
             display: flex;
             justify-content: space-between; /* 항목들을 균등하게 분배 */
-            gap: 20px; /* 항목 사이의 최소 간격 */
+            gap: 40px; /* 항목 사이의 최소 간격 */
         }
 
         .info-item {
@@ -250,7 +222,7 @@
             justify-content: space-between; /* 양쪽 끝으로 정렬 */
             align-items: flex-start; /* 상단 정렬 */
             padding: 20px 0; /* 상하 패딩만 적용 */
-            border-bottom: 1px solid var(--c-light-gray); /* 항목 구분선 */
+            border-top: 1px solid var(--c-light-gray); /* 항목 구분선 */
         }
 
         .info-item:last-child {
@@ -270,6 +242,11 @@
             line-height: 1.7;
         }
 
+        .info-item > div {
+            width: 100%;
+            text-align: center;
+        }
+
         /* 명단 스타일 */
         .member-list p {
             font-size: 1rem; /* 폰트 크기 통일 */
@@ -284,6 +261,11 @@
 
         /* 졸업전시위원 명단 왼쪽 정렬 */
         .member-list.align-left p {
+            text-align: center;
+        }
+
+        /* 개별 멤버리스트 정렬 */
+        .info-row .member-list p {
             text-align: left;
         }
 
@@ -384,12 +366,7 @@
             </nav>
         </header>
 
-        <div class="animation-section">
-            <div class="image-overlay">
-                <img src="c.png" alt="c"><img src="o.png" alt="o"><img src="d.png" alt="d"><img src="e.png" alt="e">
-            </div>
-            <canvas id="canvas1"></canvas>
-        </div>
+
         <div id="about" class="container">
             <div class="content-section">
                 <div class="about-container">
@@ -428,7 +405,7 @@
                     </div>
                     <!-- 4개 항목을 한 줄로 묶는 행 컨테이너 -->
                     <div class="info-row">
-                        <div class="info-item">
+                        <div class="info-item" style="flex: 1; text-align: center;">
                             <div>
                                 <h3>웹</h3>
                                 <div class="member-list align-left">
@@ -437,7 +414,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item" style="flex: 1; text-align: center;">
                             <div>
                                 <h3>영상</h3>
                                 <div class="member-list align-left">
@@ -446,7 +423,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item" style="flex: 1; text-align: center;">
                             <div>
                                 <h3>소형배너</h3>
                                 <div class="member-list align-left">
@@ -455,7 +432,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="info-item">
+                        <div class="info-item" style="flex: 1; text-align: center;">
                             <div>
                                 <h3>대형배너</h3>
                                 <div class="member-list align-left">
@@ -593,101 +570,6 @@
                 autoAlpha: 1, // visibility: visible, opacity: 1
             }, lastAnimationStartTime);
         });
-
-        // --- 공통 설정 ---
-        // 문자를 밝기/밀도에 따라 6단계로 재정의
-        const charLevels = [
-            [' ', '.', '`'],      
-            [',', "'", '"'],
-            [':', '~', '-'],
-            ['*', '!', '|'],
-            ['=', '$', '#'],
-            ['@', '%', '&']       
-        ];
-
-        /**
-         * 지정된 캔버스에 웨이브 애니메이션을 생성하는 함수
-         * @param {string} canvasId - 캔버스의 ID
-         * @param {object} options - 애니메이션 커스텀 옵션
-         */
-        function createWaveAnimation(canvasId, options) {
-            const canvas = document.getElementById(canvasId);
-            const ctx = canvas.getContext('2d');
-            
-            function resizeCanvas() {
-                const dpr = window.devicePixelRatio || 1;
-                // 부모 요소(.right-panel)의 크기를 기준으로 캔버스 크기 설정
-                canvas.width = canvas.parentElement.offsetWidth * dpr;
-                canvas.height = canvas.parentElement.offsetHeight * dpr;
-                ctx.scale(dpr, dpr);
-            }
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
-
-            // 옵션 기본값 설정
-            const config = {
-                numberOfColumns: 240,
-                fontSize: 14,
-                columnSpacing: 8,
-                verticalSpacing: 14 * 0.7,
-                easing: 0.08, 
-                // 기본 문자 색상을 검은색으로 변경
-                baseColor: '#000000',
-                mouseInfluenceRadius: 150, 
-                maxMouseEffectHeight: 200,   
-                ...options
-            };
-            
-            let columns = [];
-            for (let i = 0; i < config.numberOfColumns; i++) {
-                columns.push({ currentHeight: 0, targetHeight: 0 });
-            }
-
-            let frameCount = 0;
-            let mouse = { x: null, y: null };
-
-            // 마우스 이벤트 리스너 추가
-            canvas.addEventListener('mousemove', e => {
-                const rect = canvas.getBoundingClientRect();
-                mouse.x = e.clientX - rect.left;
-                mouse.y = e.clientY - rect.top;
-            });
-            canvas.addEventListener('mouseout', () => {
-                mouse.x = null;
-                mouse.y = null;
-            });
-
-            function draw() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                const totalWidth = config.columnSpacing * (config.numberOfColumns - 1);
-                const startX = (canvas.clientWidth - totalWidth) / 2;
-
-                ctx.font = `bold ${config.fontSize}px monospace`;
-                ctx.textAlign = 'center';
-
-                config.updateLogic(columns, mouse, frameCount, config);
-
-                for (let i = 0; i < config.numberOfColumns; i++) {
-                    const col = columns[i];
-                    
-                    col.currentHeight += (col.targetHeight - col.currentHeight) * config.easing;
-
-                    const columnX = startX + i * config.columnSpacing;
-                    const charCountInStack = Math.floor(col.currentHeight / config.verticalSpacing);
-
-                    config.drawLogic(ctx, i, columnX, charCountInStack, col.currentHeight, config);
-                }
-            }
-
-            function animate() {
-                draw();
-                frameCount++;
-                requestAnimationFrame(animate);
-            }
-            animate();
-        }
-
     </script>
 </body>
 </html>
