@@ -13,16 +13,20 @@
     <!-- Fonts -->
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+KR:wght@400;500;600;700&family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+        <!-- GSAP CDN --><script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
     <style>
         /* Tailwind CSS를 보완하기 위한 기본 스타일 */
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* 로딩 바가 왼쪽에서 오른쪽으로 채워지도록 설정 */
-        #loadingBar {
-            transform-origin: left;
-            transform: scaleX(0);
+        #intro-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2000; /* Ensure it's on top of everything */
         }
         :root {
             --c-white: #FFFFFF;
@@ -40,7 +44,6 @@
             padding: 0;
             box-sizing: border-box;
         }
-
 
 
         #main-content body {
@@ -267,6 +270,11 @@
             text-align: center;
         }
 
+        /* 대형배너 명단 중앙 정렬 */
+        .member-list.align-center p {
+            text-align: center !important; /* 다른 규칙을 덮어쓰기 위해 !important 사용 */
+        }
+
         /* 개별 멤버리스트 정렬 */
         .info-row .member-list p {
             text-align: left;
@@ -314,39 +322,67 @@
         @media (max-width: 480px) {
             .info-section h2 { font-size: 1.8rem; }
         }
+    </style>
+    <style>
+        /* --- 반응형 디자인을 위한 미디어 쿼리 --- */
 
-        /* Intro Animation Responsive */
-        @media (max-width: 768px) {
-            #intro-text-container {
-                font-size: 1.5rem; /* 24px */
-                gap: 0.5rem; /* space-x-2 */
+        /* 태블릿 및 소형 데스크탑 (1024px 이하) */
+        @media (max-width: 1024px) {
+            .content-section {
+                padding: 80px 40px;
+            }
+            .about-container {
+                flex-direction: column; /* 세로로 쌓기 */
+                align-items: center; /* 중앙 정렬 */
+                gap: 40px;
+                text-align: center;
+            }
+            .right-text-panel {
+                width: 100%;
+                max-width: 500px; /* 텍스트 최대 너비 제한 */
+                padding-top: 0;
+                text-align: center;
+            }
+            .image-box-wrapper > h2 {
+                position: static; /* static으로 변경하여 흐름에 맞게 배치 */
+                margin-top: 20px;
+            }
+            .image-box-wrapper > p {
+                position: static;
+                transform: none;
+                margin-top: 10px;
             }
         }
-        @media (max-width: 480px) {
-            #intro-text-container {
-                font-size: 1.25rem; /* 20px */
+
+        /* 모바일 (768px 이하) */
+        @media (max-width: 768px) {
+            .site-header { padding: 15px 20px; }
+            .site-header .logo a { font-size: 1.2rem; }
+
+            .content-section { padding: 60px 20px; }
+
+            .image-box {
+                width: 300px;
+                height: 520px;
+            }
+
+            .info-row {
+                flex-direction: column; /* 4개 항목 세로로 쌓기 */
+                gap: 0;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Intro Animation -->
-    <div id="intro-animation" class="relative w-full h-screen overflow-hidden flex items-center justify-center">
-        
+    <!-- Intro Animation Container -->
+    <div id="intro-container">
         <!-- 
           슬라이딩 패널
           - absolute: 부모(메인 컨테이너)를 기준으로 위치
-        --><!-- 상단 패널 (Z-index: 20) --><!-- 
-          - 텍스트를 다시 포함하고, flex, overflow-hidden 등 클래스 복원
-        --><div id="panelTop" class="absolute top-0 left-0 w-full h-1/2 bg-teal-500 z-20 flex items-end justify-center overflow-hidden pb-8">
-            <!-- 
-              애니메이션 텍스트
-              - 상단 패널 내부로 다시 이동
-            -->
-            <!-- 
-              폰트 크기 수정: text-4xl md:text-7xl -> text-2xl (24px)
-            -->
-            <div id="intro-text-container" class="flex items-center space-x-4 text-2xl font-bold">
+        -->
+        <!-- 상단 패널 (Z-index: 20) -->
+        <div id="panelTop" class="absolute top-0 left-0 w-full h-1/2 bg-teal-500 z-20 flex items-end justify-center overflow-hidden pb-8">
+            <div class="flex items-center space-x-4 text-2xl font-bold">
                 <span id="codeText" class="text-white">CODE</span>
                 <span id="slashText" class="text-gray-200">/</span>
                 <span id="projectText" class="text-white">PROJECT</span>
@@ -354,22 +390,10 @@
         </div>
         
         <!-- 하단 패널 (Z-index: 20) -->
-        <div id="panelBottom" class="absolute bottom-0 left-0 w-full h-1/2 bg-teal-500 z-20 flex items-end justify-center pb-4">
-            <!-- 하단 퍼센트 텍스트 -->
-            <div id="loadingPercentage" class="text-sm font-mono text-white/50">(0%)</div>
-        </div>
-
-        <!-- 로딩 바 컨테이너 (Z-index: 30) -->
-        <div id="loadingContainer" class="absolute top-1/2 left-0 w-full z-30">
-            <!-- 로딩 바 트랙 -->
-            <div class="h-[1px] w-full bg-black/20"></div>
-            <!-- 실제 움직이는 로딩 바 -->
-            <div id="loadingBar" class="absolute top-0 left-0 h-[1px] w-full bg-white"></div>
-        </div>
+        <div id="panelBottom" class="absolute bottom-0 left-0 w-full h-1/2 bg-teal-500 z-20"></div>
     </div>
-
     <!-- Main Content (initially hidden) -->
-    <div id="main-content" style="visibility: hidden; opacity: 0;">
+    <div id="main-content">
         <!-- Site Header -->
         <header class="site-header">
             <div class="logo">
@@ -429,7 +453,7 @@
                         <div class="info-item" style="flex: 1; text-align: center;">
                             <div>
                                 <h3>웹</h3>
-                                <div class="member-list align-left">
+                                <div class="member-list align-center">
                                     <p>장영웅</p>
                                     <p>박민준</p>
                                 </div>
@@ -438,7 +462,7 @@
                         <div class="info-item" style="flex: 1; text-align: center;">
                             <div>
                                 <h3>영상</h3>
-                                <div class="member-list align-left">
+                                <div class="member-list align-center">
                                     <p>최지혜</p>
                                     <p>윤서아</p>
                                 </div>
@@ -447,7 +471,7 @@
                         <div class="info-item" style="flex: 1; text-align: center;">
                             <div>
                                 <h3>소형배너</h3>
-                                <div class="member-list align-left">
+                                <div class="member-list align-center">
                                     <p>정수진</p>
                                     <p>윤서준</p>
                                 </div>
@@ -456,7 +480,7 @@
                         <div class="info-item" style="flex: 1; text-align: center;">
                             <div>
                                 <h3>대형배너</h3>
-                                <div class="member-list align-left">
+                                <div class="member-list align-center">
                                     <p>정수진</p>
                                     <p>윤서준</p>
                                 </div>
@@ -483,57 +507,61 @@
     <script>
         // DOM 콘텐츠가 모두 로드되면 스크립트 실행
         document.addEventListener("DOMContentLoaded", () => {
+            const mainContent = document.getElementById('main-content');
+            const introContainer = document.getElementById('intro-container');
+            
+            // Hide main content initially
+            gsap.set(mainContent, { autoAlpha: 0 });
+            // Prevent scrolling during intro
+            document.body.style.overflow = 'hidden';
             
             // 1. 요소들의 초기 상태 설정
             gsap.set("#panelTop", { yPercent: 0 });
             gsap.set("#panelBottom", { yPercent: 0 });
 
             // 상단 패널 내부 텍스트들의 초기 상태 설정 (투명하고 중앙에 위치)
-            gsap.set(["#codeText", "#slashText", "#projectText"], { opacity: 0 }); // 모든 텍스트 초기 투명
-            gsap.set(["#loadingContainer", "#loadingPercentage"], { opacity: 0 }); // 로딩 요소들 초기 투명
+            gsap.set(["#codeText", "#slashText", "#projectText"], { autoAlpha: 0 }); // 모든 텍스트 초기 투명
             
             // 텍스트 이동 거리를 동적으로 계산하기 위해 요소 참조
             const panelTop = document.getElementById('panelTop');
             const codeText = document.getElementById('codeText');
             const projectText = document.getElementById('projectText');
 
-            // 2. GSAP 타임라인 생성
+            // 2. GSAP 타임라인 생성, onComplete 콜백 추가
             const tl = gsap.timeline({
-                onComplete: () => { // 타임라인의 모든 애니메이션이 완료된 후 실행됩니다.
-                    // 인트로 애니메이션 컨테이너를 완전히 숨깁니다.
-                    gsap.set("#intro-animation", { display: "none" });
-                    // 메인 콘텐츠의 스크롤을 다시 활성화합니다.
-                    document.body.style.overflowY = 'auto';
+                onComplete: () => {
+                    // Animation is complete
+                    gsap.to(introContainer, { 
+                        autoAlpha: 0, 
+                        duration: 0.5,
+                        onComplete: () => introContainer.style.display = 'none' 
+                    });
+                    gsap.to(mainContent, { autoAlpha: 1, duration: 0.5, delay: 0.2 });
+                    document.body.style.overflow = 'auto'; // Restore scrolling
                 }
             });
 
-            
             // 3. 타임라인에 애니메이션 추가
             
             // (1) 텍스트가 페이드인 되면서 중앙에 나타나는 애니메이션
             tl.to(["#codeText", "#slashText", "#projectText"], {
                 duration: 0.8,
-                opacity: 1,
+                autoAlpha: 1,
                 ease: "power2.out"
             });
-
-            // (1.5) 텍스트 페이드인과 동시에 로딩 UI 나타나기
-            tl.to(["#loadingContainer", "#loadingPercentage"], {
-                opacity: 1,
-                duration: 0.8
-            }, "<");
 
             // (2) CODE와 ARTIST 텍스트가 좌우 가장자리로 이동하며 사라지는 반응형 애니메이션
             //     "-=0.4" : 이전 텍스트 페이드인 애니메이션이 끝나기 0.4초 전에 시작
             tl.to(codeText, {
                 duration: 1,
                 x: () => {
-                    const panelWidth = panelTop.offsetWidth;
-                    const textWidth = codeText.offsetWidth;
-                    // 화면 너비에 따라 반응형으로 여백 조절
-                    const padding = window.innerWidth > 768 ? 64 : 24;
-                    // (패널 너비의 절반) - (텍스트 너비의 절반) - 여백
-                    return -(panelWidth / 2 - textWidth / 2 - padding);
+                    // 패널의 왼쪽 끝 viewport 좌표
+                    const panelLeft = panelTop.getBoundingClientRect().left;
+                    // 텍스트의 현재 오른쪽 끝 viewport 좌표
+                    const codeRight = codeText.getBoundingClientRect().right;
+                    // (패널 왼쪽 끝) - (텍스트 오른쪽 끝) = 텍스트가 이동할 픽셀 거리
+                    // 텍스트의 오른쪽이 패널의 왼쪽 끝에 닿으면서 overflow-hidden으로 사라짐
+                    return panelLeft - codeRight - 10; // Add a small buffer
                 },
                 ease: "power3.inOut"
             }, "-=0.4"); 
@@ -541,58 +569,34 @@
             tl.to(projectText, {
                 duration: 1,
                 x: () => {
-                    const panelWidth = panelTop.offsetWidth;
-                    const textWidth = projectText.offsetWidth;
-                    // 화면 너비에 따라 반응형으로 여백 조절
-                    const padding = window.innerWidth > 768 ? 64 : 24;
-                    // (패널 너비의 절반) - (텍스트 너비의 절반) - 여백
-                    return panelWidth / 2 - textWidth / 2 - padding;
+                    // 패널의 오른쪽 끝 viewport 좌표
+                    const panelRight = panelTop.getBoundingClientRect().right;
+                    // 텍스트의 현재 왼쪽 끝 viewport 좌표
+                    const projectLeft = projectText.getBoundingClientRect().left;
+                    // (패널 오른쪽 끝) - (텍스트 왼쪽 끝) = 텍스트가 이동할 픽셀 거리
+                    // 텍스트의 왼쪽이 패널의 오른쪽 끝에 닿으면서 overflow-hidden으로 사라짐
+                    return panelRight - projectLeft + 10; // Add a small buffer
                 },
                 ease: "power3.inOut"
             }, "<"); // 이전 CODE 애니메이션과 동시에 시작
             
-            // (3) 로딩 애니메이션 (숫자와 바)
-            const counter = { value: 0 };
-            tl.to(counter, {
-                value: 100,
-                duration: 1,
-                ease: 'power1.inOut',
-                onUpdate: () => {
-                    document.getElementById('loadingPercentage').textContent = `(${Math.round(counter.value)}%)`;
-                }
-            }, "<"); // 텍스트 이동과 동시에 시작
-
-            tl.to("#loadingBar", {
-                scaleX: 1,
-                duration: 1,
-                ease: "power1.inOut"
-            }, "<"); // 카운터와 동시에 시작
-
-            // (4) 로딩 완료 후, 패널 열기 애니메이션
-            //     "+=0.3" : 로딩이 끝난 후 0.3초 뒤에 시작
-            const lastAnimationStartTime = "+=0.3";
-
-            tl.to(["#panelTop", "#panelBottom"], {
+            // (3) 상단 패널(#panelTop)이 1.2초 동안 위(yPercent: -100)로 슬라이드
+            //     "+=0.5" : 텍스트 이동 애니메이션이 끝난 후 0.5초 딜레이
+            tl.to("#panelTop", {
                 duration: 1.2,
-                yPercent: (i) => (i === 0 ? -100 : 100), // panelTop은 위로, panelBottom은 아래로
+                yPercent: -100,
+                ease: "power3.inOut" 
+            }, "+=0.5"); // 텍스트 이동이 끝난 후 0.5초 뒤에 시작
+
+            // (4) 하단 패널(#panelBottom)이 1.2초 동안 아래(yPercent: 100)로 슬라이드
+            //     "<" : 앞선 애니메이션(panelTop)과 *동시에* 시작
+            tl.to("#panelBottom", {
+                duration: 1.2,
+                yPercent: 100,
                 ease: "power3.inOut"
-            }, lastAnimationStartTime);
-            
-            // (5) 로딩 UI (바, 퍼센트 텍스트) 사라지는 애니메이션
-            //     yPercent 대신 autoAlpha (opacity + visibility)를 사용해 사라지게 함
-            tl.to(["#loadingContainer", "#loadingPercentage"], {
-                duration: 0.8,
-                autoAlpha: 0, // opacity: 0, visibility: hidden
-                ease: "power2.inOut"
-            }, lastAnimationStartTime); // 패널이 열리는 것과 동시에 시작
-//여기여기여기여기여기여기여기여기 여기 딜레이 조절 자연스럽게 해야함
-            // (6) 메인 콘텐츠가 부드럽게 나타나는 애니메이션
-            //     패널이 열리는 것과 동시에 시작하여 흰 화면이 보이지 않게 함
-            tl.to("#main-content", {
-                duration: 0,
-                autoAlpha: 1, // visibility: visible, opacity: 1
-            }, lastAnimationStartTime);
+            }, "<"); 
         });
     </script>
 </body>
+</html>
 </html>
